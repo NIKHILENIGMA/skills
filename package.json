@@ -1,0 +1,33 @@
+{
+  "name": "@nikhilenigma/skills",
+  "version": "1.0.0",
+  "description": "Agentic development skills for TypeScript, Next.js 16+, NestJS, Drizzle ORM, Zod, Tailwind CSS, and shadcn/ui.",
+  "private": true,
+  "license": "MIT",
+  "author": "Nikhil (nikhilenigma)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nikhilenigma/skills.git"
+  },
+  "homepage": "https://github.com/nikhilenigma/skills#readme",
+  "bugs": {
+    "url": "https://github.com/nikhilenigma/skills/issues"
+  },
+  "files": [
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "agent-skills",
+    "ai-agents",
+    "antigravity",
+    "claude-code",
+    "cursor",
+    "nextjs",
+    "nestjs",
+    "drizzle-orm",
+    "typescript",
+    "zod"
+  ]
+}
