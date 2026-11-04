@@ -20,6 +20,14 @@ A curated collection of modular, token-efficient **AI Agent Skills** designed fo
 ├── package.json
 ├── README.md
 └── skills/
+    ├── requirements/                        # Dedicated product requirements & feature discovery (docs/PRD.md)
+    │   ├── SKILL.md
+    │   └── references/
+    │       └── prd-template.md              # Template for production-grade docs/PRD.md
+    ├── architect/                           # Dedicated system architecture & data modeling (docs/ARCHITECTURE.md)
+    │   ├── SKILL.md
+    │   └── references/
+    │       └── architecture-template.md     # Template for production-grade docs/ARCHITECTURE.md
     ├── product-planner/                     # 0 -> 1 Collaborative product & system architecture discovery
     │   ├── SKILL.md
     │   └── references/
@@ -57,6 +65,8 @@ A curated collection of modular, token-efficient **AI Agent Skills** designed fo
 
 | Skill | Scope | When It Activates | Example Prompt |
 |---|---|---|---|
+| **[`requirements`](./skills/requirements/SKILL.md)** | Product Requirements & Feature Discovery | Defining or updating `docs/PRD.md`, analyzing feature gaps, and establishing scale & user personas | *"Help me define the product requirements and PRD for an AI meeting assistant."* / *"Audit our existing PRD for missing features."* |
+| **[`architect`](./skills/architect/SKILL.md)** | System Architecture & Data Modeling | Designing tech stacks, DB schemas (`erDiagram`), system topologies, and summary APIs in `docs/ARCHITECTURE.md` from a PRD | *"Design the system architecture and database schema from docs/PRD.md."* / *"Run the architect skill to create docs/ARCHITECTURE.md."* |
 | **[`product-planner`](./skills/product-planner/SKILL.md)** | New (`0 → 1`) & Legacy Project Blueprint Onboarding | Starting a new project OR onboarding a legacy project missing `PRD.md`, `ARCHITECTURE.md`, `adr/`, or `tasks/README.md` | *"I want to build a multi-tenant B2B invoicing SaaS—help me plan it."* / *"Onboard this existing repo into `docs/`."* |
 | **[`feature-planner`](./skills/feature-planner/SKILL.md)** | 1 → N Feature-to-Microtask Decomposition | Breaking a feature/task into 1–3 file atomic microtasks in `docs/tasks/00X-<slug>.md` (tracking start, end & next steps) | *"Plan and break `FEAT-01` into microtasks in `docs/tasks/` so we can build it step-by-step."* |
 | **[`api-contract`](./skills/api-contract/SKILL.md)** | Any Backend Framework | Creating, updating, or reviewing REST endpoints, DTOs, validation schemas, or response envelopes | *"Create a `POST /v1/orders` endpoint with pagination on `GET`."* |
