@@ -41,7 +41,7 @@ When starting a new project with no existing code or PRD:
 ### Step 1: Dynamic Domain & Surface Synthesis (Propose First)
 Analyze the user's prompt to identify the **Business Model Archetype** (e.g., Multi-Sided On-Demand Service/Logistics, B2B SaaS, Marketplace Aggregator, Consumer Utility, Internal Ops Tool). Immediately present an **Inferred Ecosystem Breakdown** in the chat:
 - **Inferred Actors & Client Surfaces:** Map every distinct actor to their required client surface (e.g., *Customer* $\rightarrow$ Mobile + Web App; *Delivery/Field Partner* $\rightarrow$ Mobile App for GPS & settlement; *Admin/Store Operator* $\rightarrow$ Web Dashboard).
-- **Target Scale Tier:** (e.g., Tier 1 Internal `<1k MAU` | Tier 2 Growth `10k–50k MAU` | Tier 3 High-Scale `100k–1M+ MAU`).
+- **Target Scale Tier:** (e.g., `Case 1: 1–10k Users (Day 1 Baseline Production)` | `Case 2: 10k–100k+ Users (Hardened HA & Scale)`).
 - **Proposed `P0 (MVP)` Feature Draft (3–5 Core Features):** Cover the end-to-end value loop (e.g., Core Booking/Creation, Fulfillment/Dispatch/Tracking, Payment/Settlement, and Admin Operations).
 - **Proposed `P1 (Fast-Follow)` & Out-of-Scope (`v1 Non-Goals`):** 2–3 deferred features and 2–3 explicit boundaries.
 
@@ -126,7 +126,7 @@ If [references/prd-template.md](./references/prd-template.md) is available relat
 | <e.g., Admin / Operator> | <Web Dashboard> | <Order state machine, dispatch, catalog, payouts> | <Exception handling & ledger accuracy> |
 
 ### 2.2 Scale, Concurrency & Data Profile
-- **Target Scale Tier:** <Tier 1 (<1k MAU) | Tier 2 (10k–50k MAU) | Tier 3 (100k–1M+ MAU)>
+- **Target Scale Tier:** <Case 1: 1–10k Users (Day 1 Baseline Production) | Case 2: 10k–100k+ Users (Hardened HA & Scale)>
 - **Peak Traffic & Operational Shape:** <e.g., Morning/evening pickup spikes, live GPS updates, daily settlement batch>
 
 ## 3. Master Feature Registry (Hard Cap: 3–5 P0 Features)
@@ -153,6 +153,6 @@ If [references/prd-template.md](./references/prd-template.md) is available relat
 Once `docs/PRD.md` is written:
 1. Verify that the file is **150–250 lines**, all `FEAT-XX` IDs are sequential, every `P0` feature has $\le 3$ Gherkin acceptance bullets, and the `P0` count respects the scope cap.
 2. Present a 3-bullet executive summary of the finalized `docs/PRD.md`.
-3. **Self-Contained Next Steps:**
-   - Do **not** reference or search for external custom skills that may not be installed in the workspace.
-   - Suggest native agent workflows if the user wants to continue: use `/grill-me` to stress-test specific workflows further, or use `/plan` to design the technical architecture and implementation plan from `docs/PRD.md`.
+3. **Pipeline Handoff:**
+   - Recommend running the **`architect`** skill next to design `docs/ARCHITECTURE.md` from `docs/PRD.md`.
+   - If the user is running `requirements` standalone without the rest of the skill suite, suggest `/grill-me` to stress-test workflows or `/plan` to outline technical milestones.

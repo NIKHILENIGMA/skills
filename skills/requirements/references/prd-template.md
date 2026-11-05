@@ -30,7 +30,7 @@ Use this template to generate or update `docs/PRD.md`.
 | **<e.g., Admin / Operator>** | <e.g., Web Dashboard> | <e.g., Order state machine, hub processing, rider & payout ledger> | <Exception handling & financial reconciliation> |
 
 ### 2.2 Scale, Concurrency & Data Profile
-- **Target Scale Tier:** <Tier 1: Internal (<1k MAU) | Tier 2: Growth (10k–50k MAU) | Tier 3: High-Scale (100k–1M+ MAU)>
+- **Target Scale Tier:** <Case 1: 1–10k Users (Day 1 Baseline Production) | Case 2: 10k–100k+ Users (Hardened HA & Scale)>
 - **Peak Traffic & Operational Shape:** <e.g., Morning/evening booking spikes, continuous GPS pings during active delivery, daily settlement batch>
 - **Data & Compliance Sensitivity:** <e.g., Payment & wallet ledger integrity, location privacy, audit logs for cash handovers>
 

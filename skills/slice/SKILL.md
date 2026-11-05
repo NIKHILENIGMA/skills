@@ -70,6 +70,9 @@ Before creating any tasks or asking feature questions, verify that the project's
      - Output the exact message:
        > **"You need to provide project requirements (`docs/PRD.md`) & architecture structure (`docs/ARCHITECTURE.md`) before working with the slice skill."**
      - Suggest running the `requirements` skill first to produce `docs/PRD.md`, followed by the `architect` skill to produce `docs/ARCHITECTURE.md`.
+4. **Optional Tooling Check (`scaffold` Reminder):**
+   - Check if a root build manifest (`package.json`, `pom.xml`, `build.gradle`, `go.mod`, `pyproject.toml`, `Cargo.toml`) exists.
+   - If none exists yet, you may still generate the slice markdown files (`docs/tasks/`), **but** remind the developer at handoff (Step 5) to run the optional **`scaffold`** skill before running `implement` so verification commands (`tsc`, `vitest`, `mvn`, `pytest`, etc.) work on `TASK-01`.
 
 ---
 

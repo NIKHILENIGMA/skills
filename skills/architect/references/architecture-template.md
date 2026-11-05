@@ -11,7 +11,7 @@ Use this template to generate or update `docs/ARCHITECTURE.md`.
 
 ---
 
-```markdown
+````markdown
 # System Architecture: <Product Name>
 
 ## 1. Architecture Overview & 7-Layer Stack Matrix
@@ -183,4 +183,4 @@ erDiagram
 | **Async Queues & Workers** | Redis + BullMQ (or RabbitMQ) | Offloads transactional emails (Resend), image resizing, and push notifications from the HTTP loop. |
 | **Observability & Alerts** | Sentry + Uptime Kuma | Real-time crash telemetry with stack traces; automated health pings every 60s alerting Telegram/Slack. |
 | **Database Backups & PITR**| pgBackRest / WAL-G (or Managed Automated Backups) | Continuous WAL streaming to S3 for point-in-time recovery to the second before corrupt operations. |
-```
+````

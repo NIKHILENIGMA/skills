@@ -103,7 +103,7 @@ Read [references/architecture-template.md](./references/architecture-template.md
 - **Repository Structure:** Provide the recommended folder tree (Monorepo or Solo).
 
 ### Required `docs/ARCHITECTURE.md` Headings (Inline Fallback Schema)
-```markdown
+````markdown
 # System Architecture: <Product Name>
 
 ## 1. Architecture Overview & 7-Layer Stack Matrix
@@ -151,17 +151,17 @@ erDiagram
 | **Async Queues & Workers**| <Redis BullMQ / Kafka>| <Offloading email, PDF, and push notification jobs> |
 | **Observability & Alerts** | <Sentry + Uptime Kuma>| <Real-time crash reports and 60s health pings> |
 | **Database Backups & PITR**| <pgBackRest / WAL-G>  | <Continuous WAL streaming for point-in-time recovery> |
-```
+````
 
 ---
 
-## 5. Output Verification & Self-Contained Handoff
+## 5. Output Verification & Pipeline Handoff
 
 Once `docs/ARCHITECTURE.md` is written:
 1. Verify that all client surfaces from the PRD are mapped in the architecture diagram and folder structure.
 2. Verify that every `P0` feature from the PRD has corresponding endpoints and data model entities.
 3. Verify that all 7 layers and operational infrastructure components are documented.
 4. Present a concise 3-bullet summary of the finalized architecture.
-5. **Self-Contained Next Steps:**
-   - Do **not** look for or depend on external custom skills.
-   - Suggest native agent workflows: use `/grill-me` to stress-test specific subsystems (e.g., payment settlement, dispatch locks, or cache invalidation), or use `/plan` to outline technical implementation milestones from `docs/ARCHITECTURE.md`.
+5. **Next Step Routing (`scaffold` vs. `slice`):**
+   - **If the workspace is greenfield** (no root `package.json`, `pom.xml`, `go.mod`, `pyproject.toml`, or `Cargo.toml` exists yet) or is missing app directories declared in Section 5: recommend running the **`scaffold`** skill next to initialize the workspace tooling, app shells, Commitlint hooks, and `AGENTS.md` + `docs/rules/`.
+   - **If the workspace tooling and apps are already initialized:** recommend skipping `scaffold` and running the **`slice`** skill directly to decompose `FEAT-01` into `docs/tasks/001-<slug>.md`.

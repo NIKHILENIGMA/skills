@@ -19,17 +19,17 @@ Use these templates when creating or updating the master barrel index (`docs/tas
 
 | Slice # | Slice File | Feature ID | Phase | Priority | Status | Started | Completed | Summary |
 |---|---|---|---|---|---|---|---|---|
-| `001` | [001-foundation-and-setup.md](./001-foundation-and-setup.md) | `CORE` | Phase 1: Foundation | **P0** | `Completed` | YYYY-MM-DD | YYYY-MM-DD | Base workspace setup, DB schema barrel, seed data |
-| `002` | [002-<feat-slug>.md](./002-<feat-slug>.md) | `FEAT-01` | Phase 2: MVP Core | **P0** | `In Progress` | YYYY-MM-DD | — | <End-to-end slice summary> |
-| `003` | [003-<next-feat-slug>.md](./003-<next-feat-slug>.md) | `FEAT-02` | Phase 2: MVP Core | **P0** | `Planned` | — | — | <End-to-end slice summary> |
-| — | — | `FEAT-03` | Phase 2: MVP Core | **P0** | `Not Sliced` | — | — | <Feature summary from PRD> |
+| `001` | [001-<feat-slug>.md](./001-<feat-slug>.md) | `FEAT-01` | Phase 1: MVP Core | **P0** | `Completed` | YYYY-MM-DD | YYYY-MM-DD | <End-to-end slice summary> |
+| `002` | [002-<next-feat-slug>.md](./002-<next-feat-slug>.md) | `FEAT-02` | Phase 1: MVP Core | **P0** | `In Progress` | YYYY-MM-DD | — | <End-to-end slice summary> |
+| `003` | [003-<next-feat-slug>.md](./003-<next-feat-slug>.md) | `FEAT-03` | Phase 1: MVP Core | **P0** | `Planned` | — | — | <End-to-end slice summary> |
+| — | — | `FEAT-04` | Phase 1: MVP Core | **P0** | `Not Sliced` | — | — | <Feature summary from PRD> |
 ```
 
 ---
 
 ## 2. Individual Vertical Slice Template (`docs/tasks/00X-<slug>.md`)
 
-```markdown
+````markdown
 # Slice `00X`: <Feature Name> (`<FEAT-ID>`)
 
 - **Feature ID:** `<FEAT-ID>`
@@ -194,4 +194,4 @@ Use these templates when creating or updating the master barrel index (`docs/tas
 - **Known Limitations / Deferred to Future Slices:**
   - `<None or details of next slice>`
 - **Recommended Next Slice:** `[00X+1-<next-feature>.md](./00X+1-<next-feature>.md)`
-```
+````
