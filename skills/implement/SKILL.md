@@ -25,7 +25,7 @@ The following files are **Bookkeeping Files**. They track progress, not product 
 - The master index `docs/tasks/README.md`
 
 Rules for Bookkeeping Files:
-1. You **may** update them without asking, but **only** for the status updates defined in this skill (checking off `TASK-XX`, slice `Status` / `Completed` date, Section 6 continuity notes, and the README slice row).
+1. You **may** update them without asking, but **only** for the status transitions defined in this skill: microtask status (`TO_DO` ➔ `IN_PROGRESS` ➔ `COMPLETED`) in both the Progress Overview table and the `TASK-XX` block, slice `Status` (`Planned` ➔ `In Progress` ➔ `Completed`) with `Started` / `Completed` dates, Section 6 continuity notes, and the matching README slice row. These values are defined by the `slice` skill's **Status Vocabulary**.
 2. They do **not** count toward the 1–3 target file limit and do **not** trigger the 4th-File Deviation Protocol.
 3. You must **never** use them to change specifications (task descriptions, target files, verification commands, data models, or API contracts). Spec changes require the developer.
 4. Every other file under `docs/` remains off-limits unless it is a declared target file.
@@ -66,21 +66,25 @@ Before writing or modifying any code, verify project prerequisites:
    - Output:
      > **"Required specification files are missing. You need an active slice specification in `docs/tasks/` before using the `implement` skill."**
    - Suggest running `requirements` ➔ `architect` ➔ `slice` to generate the specification.
-3. **Check for Uncommitted Work:**
+3. **Check for Unfinished Work:**
    - Run `git status --porcelain`.
-   - If a Bookkeeping File shows `TASK-XX` checked off (`- [x]`) but is **uncommitted**, a previous task is still awaiting review or its commit failed. **Do not start a new task.** Resume that task at **Step 5** (re-verify and present the Review Card again).
+   - If any microtask in a slice file is `IN_PROGRESS`, it was started but never committed (still awaiting review, or its commit failed). **Do not start a new task.** Resume that task: re-run verification (Step 4), then present the Review Card again (Step 5).
    - If other unrelated files are modified, warn the developer that they will **not** be included in this task's commit.
 4. **Identify Active Slice & Microtask:**
    - If the user explicitly requested a specific task (e.g., *"Implement TASK-03 in slice 002"*):
      - Load `docs/tasks/002-<slug>.md` and locate `TASK-03`.
    - If no task was specified:
-     - Read `docs/tasks/README.md` to find the active slice marked `In Progress`.
-     - Open that slice file and find the **first unchecked microtask** (`- [ ] TASK-XX`).
+     - Read `docs/tasks/README.md` to find the slice marked `In Progress`.
+     - **If no slice is `In Progress`:** Pick the first `Planned` slice in index order and ask the developer to confirm starting it. If there is no `Planned` slice either, halt and suggest running the `slice` skill.
+     - **If more than one slice is `In Progress`:** The index is inconsistent. Halt and ask the developer which slice to continue.
+     - Open the slice file and pick the **first microtask with status `TO_DO`**.
 5. **Prerequisite Task Guard:**
-   - Check if all microtasks preceding `TASK-XX` are completed (`- [x]`).
-   - If a prior task is incomplete (`- [ ]`), warn the user:
-     > *"Prior task `TASK-YY` is not marked completed. We should complete prerequisites first to avoid broken dependencies."*
+   - Check that all microtasks preceding `TASK-XX` are `COMPLETED`.
+   - If a prior task is not `COMPLETED`, warn the user:
+     > *"Prior task `TASK-YY` is not completed. We should complete prerequisites first to avoid broken dependencies."*
      - Prompt whether to implement `TASK-YY` first or proceed with `TASK-XX` intentionally.
+6. **Slice Activation Guard:**
+   - If the chosen slice is `Planned` and **another slice is already `In Progress`**, do not start it silently. Ask the developer whether to finish the active slice first (Recommended) or switch intentionally.
 
 ---
 
@@ -105,6 +109,10 @@ To prevent context window saturation and hallucinations, do **NOT** read the ent
    - You **may read** (never edit) files the target files directly import or depend on, such as types, interfaces, schemas, or shared utilities, when needed to write correctly typed code. Read only what you need. Do not crawl the codebase.
    - Reading a file never adds it to the Task Change Set. Only editing does.
 5. **Initialize the Task Change Set** with the 1–3 target files.
+6. **Mark the Task as Started (Bookkeeping):**
+   - In the slice file, set `TASK-XX` to `IN_PROGRESS` in **both** the Progress Overview table and the task's `Status` line.
+   - If the slice is `Planned`, set it to `In Progress` with today's `Started` date in the slice header **and** in its `docs/tasks/README.md` row.
+   - Add the updated Bookkeeping Files to the Task Change Set.
 
 ---
 
@@ -114,7 +122,7 @@ Implement the code strictly adhering to the architectural specification:
 
 1. **Target File Discipline:**
    - Modify or create **ONLY** the 1–3 files explicitly listed in the active `TASK-XX`.
-   - Never touch unrelated configuration files, barrels, or documentation. **Exception:** Bookkeeping Files, updated only as defined in Step 5.
+   - Never touch unrelated configuration files, barrels, or documentation. **Exception:** Bookkeeping Files, updated only for the status transitions defined in this skill.
 2. **Code Quality Standards:**
    - Strict TypeScript / language typing (no `any` or loose types).
    - Consistent naming, imports, and exports matching the project style.
@@ -166,26 +174,17 @@ Once the code for the target files is written:
 
 ---
 
-## Step 5: Pre-Review Bookkeeping (Complete All Edits Before Review)
+## Step 5: Pre-Review Reconciliation
 
-After verification passes, finish **every** edit for this task **before** asking for review, so that one commit captures everything:
+After verification passes, and before asking for review:
 
-1. **Check Off the Microtask:**
-   - In `docs/tasks/00X-<slug>.md`, change `- [ ] TASK-XX` to `- [x] TASK-XX`.
-2. **If `TASK-XX` is the Final Microtask in the Slice, Also:**
-   - In `docs/tasks/00X-<slug>.md`:
-     - Set `- **Status:** Completed`.
-     - Set `- **Completed:** YYYY-MM-DD`.
-     - Fill out **Section 6 ("Where We Ended & Continuity Notes")** with modified files and deferred tasks.
-   - In `docs/tasks/README.md`:
-     - Update the slice row status to `Completed` with completion date.
-3. **Add the Updated Bookkeeping Files** to the **Task Change Set**.
-4. **Reconcile with Git:**
+1. **Confirm the Task Is Still `IN_PROGRESS`.** It stays `IN_PROGRESS` during review. It only becomes `COMPLETED` after approval (Step 7), so the file never claims a task is done before the developer has approved it.
+2. **Reconcile with Git:**
    - Run `git status --porcelain`.
    - Confirm every file in the Task Change Set appears as modified/added.
    - Note any modified file **not** in the Task Change Set. It will be listed in the Review Card as **excluded** and will not be staged.
 
-> **Note:** These bookkeeping edits are uncommitted until the developer approves. If the developer abandons the task, revert the bookkeeping edits (`- [x]` back to `- [ ]`, and undo any slice completion fields).
+> **Note:** If the developer abandons the task, revert the bookkeeping edits: set `TASK-XX` back to `TO_DO`, and if this was the slice's first task, set the slice back to `Planned` with `Started` as `—` (in both the slice file and the README).
 
 ---
 
@@ -213,8 +212,14 @@ Upon developer response:
 1. **If [C] Request Changes:**
    - Apply the requested adjustments within the Task Change Set (use the 4th-File Deviation Protocol if a new file is needed).
    - If the developer only supplied a different commit message, use it and skip to the commit below once they approve.
-   - Re-run verification (Step 4), re-reconcile (Step 5.4), present an updated Review Card, and await approval again. **Do not commit.**
+   - Re-run verification (Step 4), re-reconcile (Step 5), present an updated Review Card, and await approval again. **Do not commit.**
 2. **If [A] or [B] (Approved):**
+   - **First, apply the final bookkeeping** (so it lands in the same commit):
+     - Set `TASK-XX` to `COMPLETED` in **both** the Progress Overview table and the task's `Status` line.
+     - **If `TASK-XX` is the final microtask in the slice**, also:
+       - In the slice file: set `Status` to `Completed`, set `Completed` to today's date, and fill out **Section 6 ("Where We Ended & Continuity Notes")** with modified files and deferred tasks.
+       - In `docs/tasks/README.md`: set the slice row to `Completed` with the completion date.
+     - Add any newly touched Bookkeeping Files to the Task Change Set.
    - **Stage exactly the Task Change Set** (every target file, approved deviation file, and Bookkeeping File). Never use `git add -A` or `git add .`:
      ```bash
      git add <every file in the Task Change Set>
@@ -228,9 +233,9 @@ Upon developer response:
    - **Never** bypass hooks with `--no-verify`.
 3. **If the Commit Fails (e.g., a pre-commit or commit-msg hook rejects it):**
    - **HALT.** Do not proceed to the next microtask.
-   - Leave all changes and the `- [x]` bookkeeping edits in place (uncommitted), so Step 0 can detect the pending task.
+   - Set `TASK-XX` back to `IN_PROGRESS` (and undo any slice completion fields), because the work is not committed. Leave all other changes in place, uncommitted, so Step 0 detects the pending task.
    - Present a **Commit Failure Report** per [references/review-protocol.md](./references/review-protocol.md) with the exact hook output and a proposed fix.
-   - After the developer approves the fix, apply it within the Task Change Set, re-run verification, and retry the commit.
+   - After the developer approves the fix, apply it within the Task Change Set, re-run verification, and retry from the start of Step 7.2 (set `COMPLETED` again, stage, validate, commit).
 4. **After a Successful Commit, Route:**
    - **[A] Commit & Continue:**
      - If the slice is now completed, present the **Slice Completion Report** (Step 8) and stop.
@@ -243,7 +248,7 @@ Upon developer response:
 
 ## Step 8: Slice Completion Report
 
-When the final microtask's commit succeeds (the slice status edits were already included in that commit during Step 5):
+When the final microtask's commit succeeds (the slice completion edits were already included in that commit during Step 7):
 
 1. Congratulate the developer on completing the entire vertical slice.
 2. Provide a clickable link to the completed slice specification.
@@ -255,13 +260,13 @@ When the final microtask's commit succeeds (the slice status edits were already 
 ## Verification Checklist
 
 Before halting or concluding any turn, confirm:
-- [ ] Confirmed prerequisites (`docs/ARCHITECTURE.md` and active slice file exist) and checked for uncommitted pending tasks.
+- [ ] Confirmed prerequisites (`docs/ARCHITECTURE.md` and active slice file exist), resumed any `IN_PROGRESS` task first, and ensured only one slice is `In Progress`.
 - [ ] Read `AGENTS.md` and every file in `docs/rules/` before writing code.
-- [ ] Targeted strictly **ONE** microtask (`TASK-XX`) without running ahead.
+- [ ] Targeted strictly **ONE** microtask (`TASK-XX`) without running ahead, and set it to `IN_PROGRESS` (and the slice to `In Progress` if it was `Planned`).
 - [ ] Modified only the **1–3 target files** declared in `TASK-XX`, plus Bookkeeping Files (status updates only).
 - [ ] Followed the **4th-File Deviation Protocol** if an extra file was needed, and added it to the Task Change Set.
 - [ ] Ran the verification command and confirmed it passed (`exit code: 0`) within 3 fix attempts, **without** weakening tests or silencing errors. Otherwise, reported an Unresolved Blocker.
-- [ ] Completed all bookkeeping edits (including slice completion, if final task) **before** the review.
 - [ ] Presented the **Developer Surveillance Review Card** with the full Task Change Set and git status, and **HALTED**.
+- [ ] After approval, set the task to `COMPLETED` (and the slice completion fields, if final) **before** staging, so one commit captures everything.
 - [ ] Committed **only after** explicit developer approval, staging exactly the Task Change Set, without `--no-verify`.
-- [ ] Halted and reported if the commit failed; did not move to the next task.
+- [ ] Halted and reported if the commit failed, reverted the task to `IN_PROGRESS`, and did not move to the next task.

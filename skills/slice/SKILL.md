@@ -15,6 +15,34 @@ You are acting as a **Principal Vertical Slice Lead & Decomposition Architect**.
 
 ---
 
+## Status Vocabulary & Ownership (Shared with `implement`)
+
+`slice` **creates** every status field with its initial value. The `implement` skill **moves** statuses forward as work progresses. Both skills must use these exact values.
+
+### Slice Status (README row + slice file header)
+
+| Status | Meaning | Set By |
+|---|---|---|
+| `Not Sliced` | Feature exists in the PRD, but no slice file has been written yet | `slice` |
+| `Planned` | Slice file is written and ready. No microtask has started | `slice` |
+| `In Progress` | `implement` has started the first microtask. **Only one slice may be `In Progress` at a time** | `implement` |
+| `Completed` | All microtasks are `COMPLETED` and committed | `implement` |
+
+### Microtask Status (Progress table + each `TASK-XX` block)
+
+| Status | Meaning | Set By |
+|---|---|---|
+| `TO_DO` | Not started | `slice` |
+| `IN_PROGRESS` | `implement` is working on it or waiting for developer review | `implement` |
+| `COMPLETED` | Developer approved it and the commit succeeded | `implement` |
+
+> [!IMPORTANT]
+> - `slice` must **never** set a slice to `In Progress` or `Completed`, and never set a microtask to anything except `TO_DO`.
+> - Microtasks stay in their **dependency order** inside the file. Only their `Status` value changes. Never move task blocks around.
+> - Each microtask's status appears in **two places** (the Progress table and the `TASK-XX` block). They must always match.
+
+---
+
 ## Interactive Questioning Protocol (Cross-Agent Fallback)
 
 Whenever this skill requires asking the user a question:
@@ -54,11 +82,12 @@ Once both `docs/PRD.md` and `docs/ARCHITECTURE.md` are loaded:
    - From `docs/ARCHITECTURE.md`: Extract the **Data Model Schemas**, **API Boundaries**, **Stack Matrix**, and **Repository Topology**.
 2. **Inspect Existing Task Directory:**
    - Check if `docs/tasks/README.md` exists.
-   - If it exists: Read the index to see which features are already `Completed` or `In Progress`, and identify the next highest slice number (e.g., `001`, `002`, `003`).
+   - If it exists: Read the index to see each feature's status (`Not Sliced`, `Planned`, `In Progress`, `Completed`), and identify the next highest slice number (e.g., `001`, `002`, `003`).
    - If it does not exist: Initialize the slice numbering at `001`.
+   - If the requested feature already has a slice file (`Planned`, `In Progress`, or `Completed`), **do not create a duplicate**. Tell the developer and ask whether to pick a different feature.
 3. **Identify Target Feature:**
    - If the user explicitly named a feature (e.g., *"Slice user authentication"*), locate its corresponding `FEAT-ID` from the PRD and endpoints from the architecture doc.
-   - If no feature was specified: Recommend the highest-priority incomplete `P0` feature from `docs/PRD.md`.
+   - If no feature was specified: Recommend the highest-priority `Not Sliced` `P0` feature from `docs/PRD.md`.
 
 ---
 
@@ -83,9 +112,9 @@ Before generating the slice specification, ask **2 to 3 targeted questions (stri
 ## 4. Step 3: Initialize or Update Master Barrel Index (`docs/tasks/README.md`)
 
 Read [references/slice-template.md](./references/slice-template.md) and create or update **`docs/tasks/README.md`**:
-- Ensure all features identified from the PRD are mapped in the **Master Execution Index**.
-- Mark the target slice as `In Progress` with the start date.
-- **Never delete or overwrite existing completed rows.**
+- Ensure all features identified from the PRD are mapped in the **Master Execution Index**. Features without a slice file get status `Not Sliced` and no file link.
+- Set the target slice row to `Planned`, link its slice file, and leave `Started` and `Completed` as `—`. **Do not** mark it `In Progress`; only `implement` does that when work actually starts.
+- **Never change the status of existing `In Progress` or `Completed` rows, and never delete or overwrite them.**
 
 ---
 
@@ -112,6 +141,10 @@ Generate the dedicated vertical slice file named **`docs/tasks/00X-<slug>.md`** 
    *(Omit backend tasks for Frontend-Only slices; omit UI tasks for Backend-Only slices.)*
 4. **Mandatory Deterministic Verification Command:**
    - Every single microtask must include an exact CLI verification command (e.g., `pnpm tsc --noEmit`, `pnpm test <file>`, `pnpm lint`, or migration status).
+5. **Initial Statuses & Progress Table:**
+   - Set the slice header status to `Planned`, with `Started` and `Completed` as `—`.
+   - Set every microtask's `- **Status:**` to `` `TO_DO` ``.
+   - Fill the **Progress Overview** table at the top of Section 5 with one row per microtask (same order, same IDs, same titles), all `TO_DO`.
 
 ---
 
@@ -125,9 +158,9 @@ Once `docs/tasks/00X-<slug>.md` and `docs/tasks/README.md` are written:
    - Total atomic microtasks generated (e.g., `14 microtasks across 7 vertical layers`).
    - Link to the generated specification: [`docs/tasks/00X-<slug>.md`](./docs/tasks/00X-<slug>.md).
 3. **Execution Instructions for the Developer / Implementing Agent:**
-   - Instruct the implementing agent to execute strictly **one microtask at a time**.
-   - Edit only the 1–3 files specified in `TASK-XX`.
-   - Run the specified verification command and fix errors before checking off `- [x]`.
+   - Recommend running the `implement` skill, which executes strictly **one microtask at a time**.
+   - `implement` will switch this slice from `Planned` to `In Progress` when it starts `TASK-01` (only if no other slice is `In Progress`).
+   - Each microtask moves `TO_DO` ➔ `IN_PROGRESS` ➔ `COMPLETED`, edits only the 1–3 files specified in `TASK-XX`, and must pass its verification command and developer review before it becomes `COMPLETED`.
 
 ---
 
@@ -137,7 +170,8 @@ Before completing execution, confirm:
 - [ ] Verified that `docs/PRD.md` and `docs/ARCHITECTURE.md` exist (halted if missing).
 - [ ] Ingested requirements and architecture without guessing or altering specs.
 - [ ] Asked 2–3 focused questions via `ask_question` to resolve edge cases and UI states.
-- [ ] Created or updated the master barrel index in `docs/tasks/README.md`.
+- [ ] Created or updated the master barrel index in `docs/tasks/README.md` (new slice row = `Planned`, unsliced features = `Not Sliced`, existing `In Progress` / `Completed` rows untouched).
 - [ ] Created `docs/tasks/00X-<slug>.md` with zero-padded naming convention.
 - [ ] Ensured every microtask lists **1–3 target file paths maximum** and an exact CLI verification command.
+- [ ] Set slice status to `Planned` and every microtask to `TO_DO`, with the Progress Overview table matching the task blocks.
 - [ ] **STRICTLY PRESERVED BOUNDARY:** Wrote zero application implementation code files.

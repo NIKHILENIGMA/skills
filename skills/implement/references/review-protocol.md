@@ -2,7 +2,7 @@
 
 This reference guides the `implement` skill in presenting work for developer review, handling the 4th-file deviation protocol, reporting commit failures, and generating Commitlint-compliant atomic commits.
 
-> **Core Principle:** All edits for a microtask (code **and** bookkeeping) are completed **before** review. Nothing is committed until the developer explicitly approves. One approved commit captures the entire **Task Change Set**.
+> **Core Principle:** Nothing is committed until the developer explicitly approves. On approval, the agent sets the task to `COMPLETED` (plus slice completion fields on the final task), then makes one commit that captures the entire **Task Change Set**: code and bookkeeping together.
 
 ---
 
@@ -27,7 +27,7 @@ Whenever an atomic microtask passes its verification command and its bookkeeping
 - _None_ (or list each approved 4th file with a link and summary)
 
 **Bookkeeping Files:**
-- [`docs/tasks/001-auth.md`](./docs/tasks/001-auth.md): Checked off `TASK-02`
+- [`docs/tasks/001-auth.md`](./docs/tasks/001-auth.md): `TASK-02` is `IN_PROGRESS` now and becomes `COMPLETED` on approval
 - _(Final task only)_ [`docs/tasks/README.md`](./docs/tasks/README.md): Slice marked `Completed`
 
 #### 🗂️ Git Status Check
@@ -102,7 +102,7 @@ The agent **may read** the proposed file to write an accurate request, but **mus
 If `git commit` fails after developer approval (e.g., a `pre-commit` lint hook or `commit-msg` commitlint hook rejects it), the agent must:
 
 1. **HALT.** Do not proceed to the next microtask.
-2. **Keep all changes in place**, including the `- [x]` bookkeeping edits, uncommitted. On the next run, Step 0 detects the pending task.
+2. **Set `TASK-XX` back to `IN_PROGRESS`** (and undo any slice completion fields), because nothing was committed. Keep all other changes in place, uncommitted. On the next run, Step 0 sees the `IN_PROGRESS` task and resumes it.
 3. **Never** retry with `--no-verify`.
 4. Render this report:
 
@@ -111,7 +111,7 @@ If `git commit` fails after developer approval (e.g., a `pre-commit` lint hook o
 
 - **Attempted Message:** `feat(auth): [TASK-02] implement user registration dtos`
 - **Rejected By:** `commit-msg` hook (commitlint)
-- **State:** Changes are staged but **not committed**. `TASK-XX` is checked off in the working tree only.
+- **State:** Changes are staged but **not committed**. `TASK-XX` has been set back to `IN_PROGRESS`.
 
 #### 🧾 Hook Output
 ```text

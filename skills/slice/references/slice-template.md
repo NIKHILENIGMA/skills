@@ -13,6 +13,7 @@ Use these templates when creating or updating the master barrel index (`docs/tas
 > - This `README.md` is the single source of truth tracking all product features from `docs/PRD.md` and `docs/ARCHITECTURE.md`.
 > - Each feature has a dedicated vertical slice file (`001-<slug>.md`, `002-<slug>.md`, ...).
 > - **The 1–3 File Rule:** Never edit 10–12 files at once. When implementing, open only the active `00X-<slug>.md` and execute one atomic microtask (`TASK-01`, `TASK-02`, ...) at a time with instant verification.
+> - **Slice Statuses:** `Not Sliced` ➔ `Planned` ➔ `In Progress` ➔ `Completed`. `slice` sets `Not Sliced` / `Planned`; `implement` sets `In Progress` / `Completed`. **Only one slice may be `In Progress` at a time.**
 
 ## Master Execution Index
 
@@ -21,7 +22,7 @@ Use these templates when creating or updating the master barrel index (`docs/tas
 | `001` | [001-foundation-and-setup.md](./001-foundation-and-setup.md) | `CORE` | Phase 1: Foundation | **P0** | `Completed` | YYYY-MM-DD | YYYY-MM-DD | Base workspace setup, DB schema barrel, seed data |
 | `002` | [002-<feat-slug>.md](./002-<feat-slug>.md) | `FEAT-01` | Phase 2: MVP Core | **P0** | `In Progress` | YYYY-MM-DD | — | <End-to-end slice summary> |
 | `003` | [003-<next-feat-slug>.md](./003-<next-feat-slug>.md) | `FEAT-02` | Phase 2: MVP Core | **P0** | `Planned` | — | — | <End-to-end slice summary> |
-| `004` | [004-<next-feat-slug>.md](./004-<next-feat-slug>.md) | `FEAT-03` | Phase 2: MVP Core | **P0** | `Planned` | — | — | <End-to-end slice summary> |
+| — | — | `FEAT-03` | Phase 2: MVP Core | **P0** | `Not Sliced` | — | — | <Feature summary from PRD> |
 ```
 
 ---
@@ -33,9 +34,9 @@ Use these templates when creating or updating the master barrel index (`docs/tas
 
 - **Feature ID:** `<FEAT-ID>`
 - **Phase / Priority:** `<Phase 2: MVP Core / P0>`
-- **Status:** `In Progress` *(Update to `Completed` when all microtasks pass verification)*
+- **Status:** `Planned` *(`implement` sets `In Progress` when TASK-01 starts and `Completed` when all microtasks are `COMPLETED`)*
 - **Derived From:** [`docs/PRD.md`](../PRD.md) & [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md)
-- **Started:** `YYYY-MM-DD`
+- **Started:** `—`
 - **Completed:** `—`
 
 ---
@@ -109,14 +110,28 @@ Use these templates when creating or updating the master barrel index (`docs/tas
 > **Golden Execution Rule:**
 > 1. Edit ONLY the 1–3 target files listed per microtask.
 > 2. Run the specified `Verification Command`.
-> 3. Fix any compiler/lint/test failure before checking off `- [x]`.
+> 3. Fix any compiler/lint/test failure, then get developer approval before setting the microtask to `COMPLETED`.
+>
+> **Microtask Statuses:** `TO_DO` ➔ `IN_PROGRESS` ➔ `COMPLETED`. Tasks stay in this order; only the status changes. Keep the Progress Overview table and each task's `Status` line in sync.
+
+### Progress Overview
+
+| Task | Layer | Title | Status |
+|---|---|---|---|
+| `TASK-01` | Data Layer | Database Schema & Migration | `TO_DO` |
+| `TASK-02` | Contracts | Request/Response DTOs & Validation Schema | `TO_DO` |
+| `TASK-03` | Service | Domain Business Logic & Error Handling | `TO_DO` |
+| `TASK-04` | Controller & Module | Route Wiring & Guards | `TO_DO` |
+| `TASK-05` | Client Hook | Typed Fetcher & State/Query Hook | `TO_DO` |
+| `TASK-06` | UI Components | View, Forms & Edge States | `TO_DO` |
+| `TASK-07` | Integration & Verification | Route Mount & End-to-End Smoke Test | `TO_DO` |
 
 ### `TASK-01` [Data Layer]: Database Schema & Migration
 - **Target Files (1–2):**
   1. `apps/api/src/prisma/schema.prisma` (or migration file / entity definition)
 - **Description:** Define the new entities, indexes, and relations according to Section 2.
 - **Verification Command:** `pnpm db:migrate` (or `npx prisma db push --dry-run` / equivalent)
-- **Status:** `- [ ]`
+- **Status:** `TO_DO`
 
 ### `TASK-02` [Contracts]: Request/Response DTOs & Validation Schema
 - **Target Files (1–2):**
@@ -124,7 +139,7 @@ Use these templates when creating or updating the master barrel index (`docs/tas
   2. `apps/api/src/modules/<feature>/dto/<feature>-response.dto.ts`
 - **Description:** Implement class-validator or Zod schemas with complete validation rules and error messages.
 - **Verification Command:** `pnpm tsc --noEmit`
-- **Status:** `- [ ]`
+- **Status:** `TO_DO`
 
 ### `TASK-03` [Service]: Domain Business Logic & Error Handling
 - **Target Files (1–2):**
@@ -132,7 +147,7 @@ Use these templates when creating or updating the master barrel index (`docs/tas
   2. `apps/api/src/modules/<feature>/<feature>.service.spec.ts`
 - **Description:** Implement core business rules, idempotency checks, transactions, and throw standard domain exceptions.
 - **Verification Command:** `pnpm vitest run apps/api/src/modules/<feature>/<feature>.service.spec.ts`
-- **Status:** `- [ ]`
+- **Status:** `TO_DO`
 
 ### `TASK-04` [Controller & Module]: Route Wiring & Guards
 - **Target Files (1–2):**
@@ -140,7 +155,7 @@ Use these templates when creating or updating the master barrel index (`docs/tas
   2. `apps/api/src/modules/<feature>/<feature>.module.ts`
 - **Description:** Wire controller endpoints, route guards (auth/roles), attach validation pipes, and register module into main app.
 - **Verification Command:** `pnpm tsc --noEmit`
-- **Status:** `- [ ]`
+- **Status:** `TO_DO`
 
 ### `TASK-05` [Client Hook]: Typed Fetcher & State/Query Hook
 - **Target Files (1–2):**
@@ -148,7 +163,7 @@ Use these templates when creating or updating the master barrel index (`docs/tas
   2. `apps/web/src/features/<feature>/hooks/use-<feature>.ts`
 - **Description:** Implement typed HTTP client methods and React Query / SWR / Zustand hooks with cache invalidation keys.
 - **Verification Command:** `pnpm tsc --noEmit`
-- **Status:** `- [ ]`
+- **Status:** `TO_DO`
 
 ### `TASK-06` [UI Components]: View, Forms & Edge States
 - **Target Files (1–3):**
@@ -157,7 +172,7 @@ Use these templates when creating or updating the master barrel index (`docs/tas
   3. `apps/web/src/features/<feature>/components/<feature>-skeleton.tsx`
 - **Description:** Build presentation components handling loading, empty, and validation error states.
 - **Verification Command:** `pnpm lint && pnpm tsc --noEmit`
-- **Status:** `- [ ]`
+- **Status:** `TO_DO`
 
 ### `TASK-07` [Integration & Verification]: Route Mount & End-to-End Smoke Test
 - **Target Files (1–2):**
@@ -165,14 +180,14 @@ Use these templates when creating or updating the master barrel index (`docs/tas
   2. `apps/web/src/features/<feature>/__tests__/<feature>-smoke.test.tsx`
 - **Description:** Mount the feature into the page route, verify navigation, and run smoke test confirming happy path and 404/400 edge cases.
 - **Verification Command:** `pnpm test:feature` (or `pnpm tsc --noEmit && pnpm test`)
-- **Status:** `- [ ]`
+- **Status:** `TO_DO`
 
 ---
 
 ## 6. Where We Ended & Continuity Notes
 *(To be filled out by the implementation agent once all microtasks are complete)*
 
-- **Final Status:** `In Progress`
+- **Final Status:** `Completed` *(filled by `implement` with the completion date)*
 - **Files Modified / Created:**
   - `<file_1>`
   - `<file_2>`
