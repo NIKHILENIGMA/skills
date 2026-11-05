@@ -28,6 +28,10 @@ A curated collection of modular, token-efficient **AI Agent Skills** designed fo
     │   ├── SKILL.md
     │   └── references/
     │       └── architecture-template.md     # Template for production-grade docs/ARCHITECTURE.md
+    ├── slice/                               # Vertical slice decomposition & 1-3 file microtasking (docs/tasks/00X-*.md)
+    │   ├── SKILL.md
+    │   └── references/
+    │       └── slice-template.md            # Template for docs/tasks/README.md & docs/tasks/00X-<slug>.md
     ├── product-planner/                     # 0 -> 1 Collaborative product & system architecture discovery
     │   ├── SKILL.md
     │   └── references/
@@ -67,6 +71,7 @@ A curated collection of modular, token-efficient **AI Agent Skills** designed fo
 |---|---|---|---|
 | **[`requirements`](./skills/requirements/SKILL.md)** | Product Requirements & Feature Discovery | Defining or updating `docs/PRD.md`, analyzing feature gaps, and establishing scale & user personas | *"Help me define the product requirements and PRD for an AI meeting assistant."* / *"Audit our existing PRD for missing features."* |
 | **[`architect`](./skills/architect/SKILL.md)** | System Architecture & Data Modeling | Designing tech stacks, DB schemas (`erDiagram`), system topologies, and summary APIs in `docs/ARCHITECTURE.md` from a PRD | *"Design the system architecture and database schema from docs/PRD.md."* / *"Run the architect skill to create docs/ARCHITECTURE.md."* |
+| **[`slice`](./skills/slice/SKILL.md)** | Vertical Slice Decomposition (Specs Only) | Ingesting `docs/PRD.md` & `docs/ARCHITECTURE.md` to produce the master task barrel (`docs/tasks/README.md`) and decompose a feature into 1–3 file atomic microtasks. Does NOT write code. | *"Use the slice skill to break down our authentication feature into microtasks."* / *"Slice FEAT-01 from our PRD and architecture docs."* |
 | **[`product-planner`](./skills/product-planner/SKILL.md)** | New (`0 → 1`) & Legacy Project Blueprint Onboarding | Starting a new project OR onboarding a legacy project missing `PRD.md`, `ARCHITECTURE.md`, `adr/`, or `tasks/README.md` | *"I want to build a multi-tenant B2B invoicing SaaS—help me plan it."* / *"Onboard this existing repo into `docs/`."* |
 | **[`feature-planner`](./skills/feature-planner/SKILL.md)** | 1 → N Feature-to-Microtask Decomposition | Breaking a feature/task into 1–3 file atomic microtasks in `docs/tasks/00X-<slug>.md` (tracking start, end & next steps) | *"Plan and break `FEAT-01` into microtasks in `docs/tasks/` so we can build it step-by-step."* |
 | **[`api-contract`](./skills/api-contract/SKILL.md)** | Any Backend Framework | Creating, updating, or reviewing REST endpoints, DTOs, validation schemas, or response envelopes | *"Create a `POST /v1/orders` endpoint with pagination on `GET`."* |
@@ -160,7 +165,16 @@ Turns a raw project idea—or an existing pre-`agy` codebase—into a complete s
 
 ---
 
-### 2. `feature-planner` — 1 → N Feature-to-Microtask Decomposition & Step-by-Step Executor
+### 2. `slice` — Vertical Slice Decomposition Specialist (Docs-to-Microtasks)
+Transforms high-level `docs/PRD.md` and `docs/ARCHITECTURE.md` into deep, end-to-end vertical slice specifications in `docs/tasks/00X-<slug>.md` indexed in `docs/tasks/README.md`.
+- **Strict Separation of Concerns:** **`slice` strictly plans and decomposes; it never writes application code.**
+- **Prerequisite Gate:** Checks for `docs/PRD.md` and `docs/ARCHITECTURE.md`. If missing or declined, halts immediately: *"You need to provide project requirements (`docs/PRD.md`) & architecture structure (`docs/ARCHITECTURE.md`) before working with the slice skill."*
+- **Interactive Question Gate (Pre-Slicing Deep Dive):** Asks 2–3 targeted questions (`ask_question`) to lock down domain edge cases, permissions, DTO constraints, and UI loading/empty/error states.
+- **Deep Microtask Breakdown (1–3 Files Hard Cap):** Decomposes the feature vertically from database to UI (`[Data Layer] -> [DTOs/Validation] -> [Domain Service] -> [Route/Handler] -> [Client Hook] -> [UI View/Form] -> [Smoke Test]`). Each microtask includes strictly 1–3 target file paths and an explicit CLI verification command (can scale to 15–25 microtasks for complex features).
+
+---
+
+### 3. `feature-planner` — 1 → N Feature-to-Microtask Decomposition & Step-by-Step Executor
 Prevents the #1 failure mode of AI coding agents—editing 10–12 files simultaneously—by decomposing **one feature/task at a time** into its own numbered file in `docs/tasks/00X-<slug>.md` with sequential, verifiable **1–3 file microtasks**.
 - **When to use:** Building any planned task/feature from `docs/tasks/README.md` (or `docs/PRD.md`), promoting a `P1 In-Pipeline` feature, or adding a brand-new feature to an existing/legacy project.
 - **How it works:**
@@ -171,7 +185,7 @@ Prevents the #1 failure mode of AI coding agents—editing 10–12 files simulta
 
 ---
 
-### 3. `api-contract` — Unified REST API Standard (Framework-Agnostic)
+### 4. `api-contract` — Unified REST API Standard (Framework-Agnostic)
 Enforces a strict 5-stage execution pipeline across **any** backend framework (NestJS, Next.js Route Handlers, Express, FastAPI, Spring Boot):
 1. **Sanitize & Validate All 3 Inputs (Zod Default):**
    - **Route Params:** `uuid`, `cuid`, `slug`, or `numericId` schemas.
@@ -205,7 +219,7 @@ Enforces a strict 5-stage execution pipeline across **any** backend framework (N
 
 ---
 
-### 4. `nestjs-core` — Production NestJS & Drizzle Architecture
+### 5. `nestjs-core` — Production NestJS & Drizzle Architecture
 Chains with `api-contract` and enforces:
 - **Topology Detection:** Adapts between **Solo Repo** (`src/db/schema/index.ts` barrel + `src/db/migrations/`) and **Monorepo** (`apps/api` wrapping `@repo/db` and `@repo/types`).
 - **Lifecycle Placement:** `CorrelationIdMiddleware` → `ExternalAuthGuard` (Clerk/Supabase/Auth0 token verification + webhook/idempotent Drizzle user upsert) & `RolesGuard` → `ZodValidationPipe` → Controller → Service (`db.transaction()`) → `ApiExceptionFilter`.
@@ -215,7 +229,7 @@ Chains with `api-contract` and enforces:
 
 ---
 
-### 5. `nextjs-core` — Next.js 16+ App Router, RSC & UI Standard
+### 6. `nextjs-core` — Next.js 16+ App Router, RSC & UI Standard
 Chains with `api-contract` and enforces:
 - **Topology Detection:** Supports **Mode A** (Full-stack Next.js with Drizzle & Server Actions) and **Mode B** (Monorepo `apps/web` calling NestJS via a typed `apiRequest<T>()` client that injects Bearer tokens and unwraps `ApiResponse<T>`).
 - **Feature-Sliced Structure:** Thin `src/app/` route groups (`(public)`, `(auth)`, `(dashboard)`) + `src/features/<feature>/{components,hooks,actions,queries,schemas}`.
@@ -225,7 +239,7 @@ Chains with `api-contract` and enforces:
 
 ---
 
-### 6. `trace-endpoint` & `architecture-diagram` — Visual Code Intelligence
+### 7. `trace-endpoint` & `architecture-diagram` — Visual Code Intelligence
 - **`trace-endpoint`:** Traces any `METHOD /path` or Server Action hop-by-hop through client callers, guards, pipes, services, Drizzle queries, BullMQ queues, and external SDKs. Outputs a Mermaid `sequenceDiagram`, a `Step | File:line | What happens` table, and a **Not verified** list.
 - **`architecture-diagram`:** Inspects `package.json`, `.env.example` (never `.env`), Dockerfiles, CI workflows, and IaC to output a Mermaid `flowchart LR` (solid arrows = confirmed in code, dashed arrows = inferred) with a component confidence table.
 
@@ -234,12 +248,21 @@ Chains with `api-contract` and enforces:
 ## Recommended End-to-End Workflow
 
 ```mermaid
-flowchart LR
-  A["1. Raw Idea"] -->|product-planner| B["docs/PRD.md + ARCHITECTURE.md +\nadr/ + docs/tasks/README.md"]
-  B -->|feature-planner| FT["docs/tasks/00X-<slug>.md\n(1-3 File Microtasks)"]
-  FT -->|nestjs-core + api-contract| C["Backend Modules, Drizzle DB & Queues"]
-  FT -->|nextjs-core + api-contract| D["Next.js 16+ Pages, Forms & API Client"]
-  C & D -->|trace-endpoint & architecture-diagram| E["Living Sequence & System Diagrams"]
+flowchart TD
+  subgraph Stage1["1. Specification & Architecture"]
+    A["Raw Product Idea"] -->|requirements| PRD["docs/PRD.md<br/>(Actors, Scale & Feature Registry)"]
+    PRD -->|architect| ARCH["docs/ARCHITECTURE.md<br/>(7-Layer Stack, ERD & APIs)"]
+  end
+
+  subgraph Stage2["2. Vertical Slicing (Specs Only)"]
+    PRD & ARCH -->|slice| TASKS["docs/tasks/README.md (Master Barrel)<br/>docs/tasks/00X-slug.md<br/>(1-3 File Atomic Microtasks)"]
+  end
+
+  subgraph Stage3["3. Step-by-Step Implementation"]
+    TASKS -->|nestjs-core + api-contract| C["Backend Modules, Drizzle DB & Queues"]
+    TASKS -->|nextjs-core + api-contract| D["Next.js 16+ Pages, Forms & API Client"]
+    C & D -->|trace-endpoint & architecture-diagram| E["Living Sequence & System Diagrams"]
+  end
 ```
 
 ---
