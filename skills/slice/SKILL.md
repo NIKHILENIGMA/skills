@@ -123,7 +123,7 @@ Once `docs/tasks/00X-<slug>.md` and `docs/tasks/README.md` are written:
 2. Present a structured summary in chat:
    - Target Feature & Slice ID (e.g., `Slice 001: User Authentication (FEAT-01)`).
    - Total atomic microtasks generated (e.g., `14 microtasks across 7 vertical layers`).
-   - Link to the generated specification: [`docs/tasks/00X-<slug>.md`](file:///absolute/path/to/docs/tasks/00X-<slug>.md).
+   - Link to the generated specification: [`docs/tasks/00X-<slug>.md`](./docs/tasks/00X-<slug>.md).
 3. **Execution Instructions for the Developer / Implementing Agent:**
    - Instruct the implementing agent to execute strictly **one microtask at a time**.
    - Edit only the 1–3 files specified in `TASK-XX`.

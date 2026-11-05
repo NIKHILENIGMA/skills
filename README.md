@@ -32,6 +32,10 @@ A curated collection of modular, token-efficient **AI Agent Skills** designed fo
     │   ├── SKILL.md
     │   └── references/
     │       └── slice-template.md            # Template for docs/tasks/README.md & docs/tasks/00X-<slug>.md
+    ├── implement/                           # Atomic 1-3 file microtask executor under developer surveillance
+    │   ├── SKILL.md
+    │   └── references/
+    │       └── review-protocol.md           # Surveillance Review Card, 4th-file deviation & Commitlint standards
     ├── product-planner/                     # 0 -> 1 Collaborative product & system architecture discovery
     │   ├── SKILL.md
     │   └── references/
@@ -72,6 +76,7 @@ A curated collection of modular, token-efficient **AI Agent Skills** designed fo
 | **[`requirements`](./skills/requirements/SKILL.md)** | Product Requirements & Feature Discovery | Defining or updating `docs/PRD.md`, analyzing feature gaps, and establishing scale & user personas | *"Help me define the product requirements and PRD for an AI meeting assistant."* / *"Audit our existing PRD for missing features."* |
 | **[`architect`](./skills/architect/SKILL.md)** | System Architecture & Data Modeling | Designing tech stacks, DB schemas (`erDiagram`), system topologies, and summary APIs in `docs/ARCHITECTURE.md` from a PRD | *"Design the system architecture and database schema from docs/PRD.md."* / *"Run the architect skill to create docs/ARCHITECTURE.md."* |
 | **[`slice`](./skills/slice/SKILL.md)** | Vertical Slice Decomposition (Specs Only) | Ingesting `docs/PRD.md` & `docs/ARCHITECTURE.md` to produce the master task barrel (`docs/tasks/README.md`) and decompose a feature into 1–3 file atomic microtasks. Does NOT write code. | *"Use the slice skill to break down our authentication feature into microtasks."* / *"Slice FEAT-01 from our PRD and architecture docs."* |
+| **[`implement`](./skills/implement/SKILL.md)** | Step-by-Step Code Execution Under Surveillance | Executing strictly ONE 1–3 file microtask from `docs/tasks/00X-<slug>.md` at a time, running verification, enforcing Commitlint, presenting the Review Card, and halting for developer approval | *"Implement the next microtask from our active slice."* / *"Run implement on TASK-02 in docs/tasks/001-user-auth.md."* |
 | **[`product-planner`](./skills/product-planner/SKILL.md)** | New (`0 → 1`) & Legacy Project Blueprint Onboarding | Starting a new project OR onboarding a legacy project missing `PRD.md`, `ARCHITECTURE.md`, `adr/`, or `tasks/README.md` | *"I want to build a multi-tenant B2B invoicing SaaS—help me plan it."* / *"Onboard this existing repo into `docs/`."* |
 | **[`feature-planner`](./skills/feature-planner/SKILL.md)** | 1 → N Feature-to-Microtask Decomposition | Breaking a feature/task into 1–3 file atomic microtasks in `docs/tasks/00X-<slug>.md` (tracking start, end & next steps) | *"Plan and break `FEAT-01` into microtasks in `docs/tasks/` so we can build it step-by-step."* |
 | **[`api-contract`](./skills/api-contract/SKILL.md)** | Any Backend Framework | Creating, updating, or reviewing REST endpoints, DTOs, validation schemas, or response envelopes | *"Create a `POST /v1/orders` endpoint with pagination on `GET`."* |
@@ -258,10 +263,10 @@ flowchart TD
     PRD & ARCH -->|slice| TASKS["docs/tasks/README.md (Master Barrel)<br/>docs/tasks/00X-slug.md<br/>(1-3 File Atomic Microtasks)"]
   end
 
-  subgraph Stage3["3. Step-by-Step Implementation"]
-    TASKS -->|nestjs-core + api-contract| C["Backend Modules, Drizzle DB & Queues"]
-    TASKS -->|nextjs-core + api-contract| D["Next.js 16+ Pages, Forms & API Client"]
-    C & D -->|trace-endpoint & architecture-diagram| E["Living Sequence & System Diagrams"]
+  subgraph Stage3["3. Step-by-Step Implementation Under Surveillance"]
+    TASKS -->|implement| EXEC["1-3 Target Files Modified<br/>Verification Command Green"]
+    EXEC -->|developer review & approval| COMMIT["Commitlint Atomic Git Commit<br/>docs/tasks/00X-*.md (- [x])"]
+    COMMIT -->|next microtask| TASKS
   end
 ```
 
@@ -282,8 +287,10 @@ To guarantee 100% skill activation in any repository, drop a lightweight `AGENTS
 
 ## Mandatory Skill Routing
 Before writing code or docs, read and follow the matching skill in `.agents/skills/`:
-- Starting a new project from scratch (0 -> 1 architecture & PRD) -> `product-planner`
-- Planning, adding, or building a specific feature into 1-3 file microtasks -> `feature-planner`
+- Starting a new project from scratch (0 -> 1 architecture & PRD) -> `product-planner` or `requirements`
+- Designing technical architecture & data models -> `architect`
+- Breaking down features into vertical slices & microtasks -> `slice`
+- Executing code implementation for microtasks under developer review -> `implement`
 - Creating or modifying any API endpoint, DTO, or response -> `api-contract`
 - Working in NestJS backend code or Drizzle services -> `nestjs-core` (and `api-contract`)
 - Working in Next.js pages, components, forms, or actions -> `nextjs-core`
