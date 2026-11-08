@@ -20,7 +20,7 @@ flowchart LR
       ARC -->|"docs/ARCHITECTURE.md"| DEC{"Repo\nInitialized?"}
       DEC -->|"No (Greenfield)"| SCA["scaffold (Optional)\n(Platform/DX Lead)"]
       DEC -->|"Yes (Existing)"| SLI
-      SCA -->|"Verified Base Shell"| SLI["slice\n(Vertical Slice Lead)"]
+      SCA -->|"docs/INITIALIZATION.md\n(Verified Base Shell)"| SLI["slice\n(Vertical Slice Lead)"]
     end
 
     subgraph Execution ["3. Monitored Implementation"]
@@ -40,94 +40,195 @@ flowchart LR
 |---|---|---|---|---|
 | **`requirements`** | Principal Product Manager | `docs/PRD.md` (150–250 lines) | User idea or prompt | Actor $\times$ Surface matrix, scale tier, hard cap of 3–5 `P0 (MVP)` features with Gherkin acceptance criteria. **Zero tech stack or code decisions.** |
 | **`architect`** | Principal Systems Architect | `docs/ARCHITECTURE.md` (250–380 lines) | `docs/PRD.md` | 7-layer stack taxonomy, Mermaid system & ER diagrams, database schemas, API summary endpoints, repo topology, operational scale strategy. **Zero feature writing or task planning.** |
-| **`scaffold`** *(Optional)* | Principal Platform & DX Engineer | Base workspace & tools, `AGENTS.md`, `docs/rules/` | `docs/ARCHITECTURE.md` | Runs non-interactive official CLIs (`create-next-app`, `@nestjs/cli`, `create-vite`, `uv`, etc.), wires workspace/monorepo manifests, sets up Biome/Commitlint/Husky/Docker, installs packages, runs verification, and makes 1 foundation commit. **Zero feature code.** |
+| **`scaffold`** *(Optional)* | Principal Platform & DX Engineer | `docs/INITIALIZATION.md`, base workspace, `AGENTS.md`, `docs/rules/` | `docs/ARCHITECTURE.md` | Interrogates developer for surface parameters, writes `docs/INITIALIZATION.md` foundation board, executes non-interactive CLIs, pre-links `@repo/*` packages, applies modular `templates/`, verifies clean build, and halts for foundation commit. **Zero feature code.** |
 | **`slice`** | Vertical Slice Architect | `docs/tasks/README.md` & `docs/tasks/00X-<slug>.md` | `docs/PRD.md` & `docs/ARCHITECTURE.md` | Decomposes a single feature into sequential, atomic microtasks strictly capped at **1–3 target files** with deterministic CLI verification commands and `TO_DO` status. **Zero application code.** |
 | **`implement`** | Principal Implementation Specialist | Application code files + atomic commits | `docs/tasks/00X-<slug>.md` & `docs/rules/` | Executes strictly **ONE** microtask at a time, modifies only the 1–3 target files, runs the verification command (max 3 auto-fix attempts), renders the **Surveillance Review Card**, updates status to `COMPLETED`, and commits only after developer approval. |
 
 ---
 
-## 3. End-to-End Workflow & Prompt Examples
+## 3. Skill-by-Skill Prompting Guide
 
-Here is how to run the skills in sequence for a complete project lifecycle.
+To get the most out of each skill, prompts must be clear, bounded, and reference the right artifacts. Below is a guide for every phase showing what works, what fails, and why.
+
+---
 
 ### Phase 1: Requirements Discovery (`requirements`)
-*Define what to build and why, without discussing tech stacks.*
+*Define what to build and why, without discussing tech stacks or code.*
 
-**Prompt:**
+#### ❌ The Bad Prompt (Anti-Pattern)
 ```text
-Activate the requirements skill. I want to build an on-demand doorstep laundry & dry cleaning service called "CleanFlow". 
-It needs surfaces for Customers to book pickups, Riders to navigate and accept laundry batches, and an Admin portal to manage hub operations.
+Build me an Uber for Laundry with a Next.js frontend, PostgreSQL database, and Tailwind CSS.
 ```
-- **What happens:** The agent synthesizes the ecosystem, maps the actors to surfaces, and asks **2–3 focused questions** (pricing model, delivery verification, MVP trade-offs) using multiple-choice options.
-- **Output:** Creates `docs/PRD.md` with features `FEAT-01` through `FEAT-05` and scale tier `Case 1: 1–10k Users`.
+> **Why it fails:** Blends technical architecture into product discovery. The agent skips feature definition, hallucinates database columns prematurely, and fails to identify critical actors, business constraints, or edge cases.
+
+#### ✅ The High-Impact Prompt
+```text
+Activate the requirements skill. I want to build an on-demand doorstep laundry service called "CleanFlow".
+
+Product Surfaces & Actors:
+- Customers: Book pickups, select garment care preferences, track live status, pay online.
+- Delivery Riders: Accept route batches, verify bag barcodes at doorsteps, mark drop-offs.
+- Facility Admins: Batch-process garments by wash type, track machine capacity, handle damage flags.
+
+Focus strictly on core P0 MVP features. Do not discuss tech stacks, databases, or code yet.
+```
+
+* **📌 What to Include:** Target actors, client surfaces, core business model/revenue flows, operational constraints, and a hard instruction to keep tech stack out of the PRD.
+* **⚠️ What to Avoid:** Mentioning programming languages, frameworks, ORMs, libraries, or table schemas.
 
 ---
 
 ### Phase 2: System Architecture Design (`architect`)
-*Translate product requirements into technical blueprints and data models.*
+*Translate product requirements into technical blueprints, data models, and operational infrastructure.*
 
-**Prompt:**
+#### ❌ The Bad Prompt (Anti-Pattern)
 ```text
-Activate the architect skill. Review docs/PRD.md and design the full system architecture, data models, and repository topology.
+Design the architecture for my app and write the database models in Prisma.
 ```
-- **What happens:** The agent extracts the PRD surfaces and scale profile. It asks **Turn 1: Primary Ecosystem** (e.g. TypeScript Full-Stack Monorepo) and **Turn 2: Cross-Cutting Decisions** (Hosting target, Auth strategy).
-- **Output:** Generates `docs/ARCHITECTURE.md` complete with Mermaid diagrams, PostgreSQL schemas, API contracts, Turborepo structure, and Day-1 operational infra (PgBouncer, S3 presigned uploads, Redis BullMQ).
+> **Why it fails:** Jumps directly into implementation syntax. The agent generates partial code files that haven't been planned, skipping essential architectural layers like connection pooling, reverse proxying, cache invalidation, and repo topology.
+
+#### ✅ The High-Impact Prompt
+```text
+Activate the architect skill. Review docs/PRD.md and design the 7-layer architecture, data models, and repository topology.
+
+Architectural Preferences:
+- Ecosystem: TypeScript Full-Stack Monorepo (Next.js App Router + NestJS API + Turborepo).
+- Scale Target: Case 1 (1–10k users; Single VPS with Docker Compose, Nginx, PgBouncer, and Redis BullMQ).
+- Auth Strategy: Session-based HTTP-only cookies with RBAC (Customer, Rider, Admin).
+- Database: PostgreSQL with Drizzle ORM and Zod runtime validation.
+```
+
+* **📌 What to Include:** Explicit reference to `docs/PRD.md`, preferred ecosystem anchor, scale tier target (Case 1 vs Case 2), hosting preferences, and auth strategy.
+* **⚠️ What to Avoid:** Asking for feature application code; inventing features not present in `docs/PRD.md`.
 
 ---
 
-### Phase 3: Project Tooling & Foundation Setup (`scaffold`)
-*(Optional: Run only when starting a greenfield project or initializing a missing surface).*
+### Phase 3: Foundation Tooling & Workspace Setup (`scaffold`)
+*(Optional: Run only on greenfield repositories or when initializing a brand new surface).*
 
-**Prompt:**
+#### ❌ The Bad Prompt (Anti-Pattern)
 ```text
-Activate the scaffold skill. Review docs/ARCHITECTURE.md and initialize the complete monorepo workspace, application shells, and tooling guardrails.
+Run scaffold and set up everything.
 ```
-- **What happens:**
-  1. Executes official CLIs with non-interactive flags (`create-next-app` for `apps/web`, `@nestjs/cli` for `apps/api`, `create-vite` for `apps/admin`).
-  2. Wires root `pnpm-workspace.yaml`, `turbo.json`, and shared packages (`packages/database`, `packages/contracts`, `packages/tsconfig`).
-  3. Sets up `commitlint.config.mjs`, Biome, Husky hooks, `docker-compose.yml`, `AGENTS.md`, and `docs/rules/`.
-  4. Runs `pnpm install` and verifies `typecheck` and `lint` pass (`Exit code: 0`).
-  5. Presents the **Scaffold Review Card** and halts for approval before creating the initial git commit.
+> **Why it fails:** Forces the agent to guess minute flags (e.g., Tailwind vs Vanilla, port assignments, linter presets). The agent runs generic CLIs, then spends hundreds of tokens overwriting CSS and config files, leading to port collisions and broken linters.
+
+#### ✅ The High-Impact Prompt
+```text
+Activate the scaffold skill. Review docs/ARCHITECTURE.md and generate docs/INITIALIZATION.md.
+
+Tactical Preferences:
+- Package Manager: pnpm (v9) with Turborepo.
+- Frontend (apps/web): Next.js App Router + Tailwind CSS + shadcn/ui (Neutral palette) with src/ directory.
+- Backend (apps/api): NestJS strict shell.
+- Tooling Preset: Biome preset (from templates/linters/biome.json) + .editorconfig + GitHub Actions CI.
+- Local Ports: PostgreSQL on 5432, Redis on 6379 (no collisions).
+
+Present docs/INITIALIZATION.md for my review before executing any terminal commands.
+```
+
+* **📌 What to Include:** Styling/component combo (`Tailwind + shadcn/ui`), package manager, port assignments, linter preset preference, and an explicit instruction to present `docs/INITIALIZATION.md` before execution.
+* **⚠️ What to Avoid:** Letting the agent execute commands without an approved `docs/INITIALIZATION.md`; writing business feature code.
 
 ---
 
 ### Phase 4: Feature Vertical Slicing (`slice`)
-*Decompose a feature into sequential microtasks.*
+*Decompose a single PRD feature into atomic, verifiable microtasks.*
 
-**Prompt:**
+#### ❌ The Bad Prompt (Anti-Pattern)
 ```text
-Activate the slice skill. Slice the user authentication and onboarding feature (FEAT-01) from docs/PRD.md into atomic microtasks.
+Slice all features in docs/PRD.md into tasks and start implementing them.
 ```
-- **What happens:** The agent asks 2–3 domain-deepening questions (e.g., token lifetime, rate limits, session invalidation), updates `docs/tasks/README.md`, and generates `docs/tasks/001-user-authentication.md`.
-- **Output:** A vertical slice with 7–12 microtasks (`TASK-01` to `TASK-0N`), tracing from DB migrations and DTOs up to UI presentation and smoke tests. Every task is capped at 1–3 files with a verification command and set to `TO_DO`.
+> **Why it fails:** Overwhelms the context window by trying to plan 50+ tasks at once. Specs become obsolete before later tasks are even started.
+
+#### ✅ The High-Impact Prompt
+```text
+Activate the slice skill. Slice FEAT-01 (User Authentication & Session Management) from docs/PRD.md into atomic microtasks.
+
+Rules:
+- Strictly obey the 1–3 target file limit per task.
+- Trace sequentially: Contracts -> DB Schema -> Domain Service -> HTTP Controller -> UI Components.
+- Assign a deterministic CLI verification command to every task (e.g., pnpm tsc --noEmit, vitest).
+```
+
+* **📌 What to Include:** The single target Feature ID (`FEAT-01`), strict 1–3 file cap reminder, sequential layer flow, and mandatory verification commands for each task.
+* **⚠️ What to Avoid:** Slicing multiple features simultaneously; creating speculative tasks for features outside `FEAT-01`.
 
 ---
 
 ### Phase 5: Disciplined Microtask Implementation (`implement`)
-*Execute one microtask under active surveillance.*
+*Execute strictly one microtask at a time under developer surveillance.*
 
-**Prompt:**
+#### ❌ The Bad Prompt (Anti-Pattern)
 ```text
-Activate the implement skill and execute the next task in the active slice.
+Finish the authentication slice.
 ```
-- **What happens:**
-  1. Checks prerequisites, verifies previous tasks are completed, and marks `TASK-01` as `IN_PROGRESS`.
-  2. Reads only `AGENTS.md`, `docs/rules/`, and the 1–3 target files (plus read-only direct imports).
-  3. Implements the code change adhering to architectural rules.
-  4. Executes the deterministic verification command (e.g., `pnpm tsc --noEmit` or `vitest`). Self-heals up to 3 times without weakening tests or silencing errors.
-  5. Renders the **Developer Surveillance Review Card** and **HALTS**.
-  6. When the developer selects **`[A] Commit & Continue`**, the agent updates task status to `COMPLETED`, stages only the Task Change Set, commits with a Commitlint message (`feat(auth): [TASK-01] ...`), and moves to `TASK-02`.
+> **Why it fails:** The agent attempts to complete 8 tasks in a single turn without compiling or testing. It skips error handling, makes unverified Git commits, and generates broken imports across packages.
+
+#### ✅ The High-Impact Prompt
+```text
+Activate the implement skill. Inspect docs/tasks/001-user-authentication.md and execute the next TO_DO task (TASK-02).
+
+Discipline:
+- Modify ONLY the 1–3 declared target files.
+- Adhere to docs/rules/code-standards.md and docs/rules/testing-integrity.md.
+- Run the task's verification command and self-heal if it fails (max 3 attempts).
+- Render the Developer Surveillance Review Card and HALT for my approval before committing.
+```
+
+* **📌 What to Include:** Active slice file path, target task number, strict adherence to `docs/rules/`, and explicit instruction to render the review card and halt for approval.
+* **⚠️ What to Avoid:** Asking for multiple tasks at once; asking the agent to bypass failing checks (`--no-verify`, `@ts-ignore`, or commenting out tests).
 
 ---
 
-## 4. Real-World Scenarios & Lifecycles
+## 4. The SDD Prompt Engineering Playbook: Dos & Don'ts
+
+Use this cheat sheet to ensure prompts keep agents on track without token waste.
+
+### 📋 The Golden Rules of SDD Prompting
+
+| Dimension | ✅ What to Include | ❌ What to Avoid |
+|---|---|---|
+| **Context Anchoring** | Reference exact disk paths: `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/tasks/00X-*.md`. | Assuming the agent remembers conversations from previous sessions or skills. |
+| **Scope Bounding** | Strictly 1 feature per slice (`FEAT-01`), strictly 1 task per implementation (`TASK-02`). | Asking the agent to *"build the feature and connect it to everything"*. |
+| **Separation of Concerns** | Problem space in Phase 1; Solution space in Phase 2; Foundation in Phase 3. | Blending tech stack and libraries into product requirements discovery. |
+| **Tactical Parameterization** | Concrete flags (ports, Tailwind, shadcn palette, package manager) upfront. | Letting the agent use default CLI flags, then rewriting code files later. |
+| **Verification Gates** | Explicit CLI verification command: `pnpm typecheck`, `pnpm test`, `biome check`. | Telling the agent to *"just write the code"* without proving it compiles. |
+| **Surveillance & Commit** | Review cards (`INITIALIZATION.md`, Review Card) + developer approval. | Allowing automated, silent Git commits without seeing the diff first. |
+
+---
+
+### 🚫 The 5 Most Dangerous Prompting Anti-Patterns
+
+#### 1. Phase-Jumping
+* **The Mistake:** Asking an agent in the `requirements` or `architect` phase to *"also write the starter code"*.
+* **Why it breaks:** Bypasses task slicing and guardrail rules. The agent writes unverified code without tests, leading to broken imports and unmaintainable technical debt.
+
+#### 2. The "Vague Mega-Prompt"
+* **The Mistake:** *"Create a real-time messaging system with websockets."*
+* **Why it breaks:** The agent tries to implement socket handlers, database tables, Redis adapters, and UI components in one pass. It modifies 15+ files, loses context, and produces half-baked code.
+
+#### 3. Micromanaging Implementation Syntax
+* **The Mistake:** Copy-pasting massive blocks of TypeScript code into your prompt and telling the agent to *"insert this here"*.
+* **Why it breaks:** Destroys your context window tokens. Let the agent read the contracts from disk and write the code adhering to `docs/rules/code-standards.md`.
+
+#### 4. Bypassing Quality Gates Under Pressure
+* **The Mistake:** *"Tests are failing, just comment them out or use `@ts-ignore` so we can commit."*
+* **Why it breaks:** Violates `docs/rules/testing-integrity.md`. Cheating tests causes cascade failures on subsequent tasks that depend on those assertions.
+
+#### 5. Silent Multi-Task Batching
+* **The Mistake:** *"Run implement on tasks 3, 4, and 5 together."*
+* **Why it breaks:** Defeats the purpose of atomic Git commits. If Task 5 breaks, you cannot cleanly roll back Task 5 without losing Task 3 and Task 4.
+
+---
+
+## 5. Real-World Lifecycles & Scenarios
 
 ### Scenario A: Greenfield Project (From Scratch to Production)
 *You have a brand-new idea and an empty repository.*
 
 1. Run **`requirements`** ➔ Generates `docs/PRD.md`.
 2. Run **`architect`** ➔ Generates `docs/ARCHITECTURE.md`.
-3. Run **`scaffold`** ➔ Creates monorepo shells, installs dependencies, wires rules, verifies clean build, and commits foundation.
+3. Run **`scaffold`** ➔ Generates `docs/INITIALIZATION.md`, executes foundation board step-by-step, verifies clean build, and commits foundation.
 4. Run **`slice`** for `FEAT-01` ➔ Generates `docs/tasks/001-<slug>.md`.
 5. Run **`implement`** repeatedly until all microtasks in Slice 001 are `COMPLETED`.
 6. Run **`slice`** for `FEAT-02` ➔ Repeat implementation loop.
@@ -160,7 +261,7 @@ Activate the implement skill and execute the next task in the active slice.
 
 ---
 
-## 5. Core Rules & Guardrails Cheat Sheet
+## 6. Core Rules & Guardrails Cheat Sheet
 
 ### 1. The 1–3 File Hard Cap
 `implement` is strictly forbidden from modifying 4 or more files in a single microtask. If an extra file is truly needed (e.g., an unexported enum in a shared package):
@@ -182,7 +283,7 @@ When verification fails, the agent may auto-fix up to **3 times**. However, the 
 
 ---
 
-## 6. Recommended Slash Commands
+## 7. Recommended Slash Commands
 
 Integrate these slash commands during development for optimal speed:
 
