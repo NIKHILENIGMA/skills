@@ -6,49 +6,51 @@ Use this reference during `scaffold` execution to ensure CLI generators never ha
 
 ## 1. Non-Interactive Official CLI Recipes
 
-> **CRITICAL RULE:** Always pass non-interactive flags (`--yes`, `--skip-git`, `--skip-install`, or `CI=true`) so the agent terminal never blocks waiting for user input. After running any sub-app generator inside `apps/*`, verify that `apps/<name>/.git` does **not** exist.
+> **CRITICAL RULES:**
+> 1. Always pass non-interactive flags (`--yes`, `--skip-git`, `--skip-install`, or `CI=true`) so the agent terminal never blocks waiting for user input.
+> 2. After running any sub-app generator inside `apps/*`, verify that `apps/<name>/.git` does **not** exist.
+> 3. **Prevent Split-Brain Linters:** When the workspace uses **Biome** (`templates/linters/biome.json`), pass `--biome` to `create-next-app` (instead of `--eslint`), and immediately delete any CLI-generated `.eslintrc.*`, `eslint.config.*`, or `.prettierrc*` inside sub-apps (`apps/api`, `apps/admin`) so the root `biome.json` is the single source of truth.
 
 ### Frontend & Mobile Surfaces
 
 | Framework | Non-Interactive CLI Command |
 |---|---|
-| **Next.js (App Router + TS + Tailwind)** | `pnpm dlx create-next-app@latest apps/web --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --yes --skip-install --disable-git` |
+| **Next.js (with Biome)** | `pnpm dlx create-next-app@latest apps/web --ts --tailwind --biome --app --src-dir --import-alias "@/*" --use-pnpm --yes --skip-install --disable-git` |
+| **Next.js (with ESLint)** | `pnpm dlx create-next-app@latest apps/web --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm --yes --skip-install --disable-git` |
 | **React + Vite (Admin SPA + TS)** | `pnpm create vite@latest apps/admin --template react-ts --no-interactive` |
 | **Expo (React Native Mobile)** | `pnpm dlx create-expo-app@latest apps/mobile --template default --no-install` |
 | **Astro (Content / Marketing)** | `pnpm create astro@latest apps/marketing -- --template minimal --typescript strict --no-install --no-git --yes` |
 | **shadcn/ui (Component Init)** | `pnpm dlx shadcn@latest init --defaults --yes` |
 
-### Backend & Full-Stack Surfaces
+### Backend & Full-Stack Surfaces (Cross-Platform Safe)
 
 | Framework | Non-Interactive CLI Command |
 |---|---|
-| **NestJS (Enterprise Node/TS)** | `pnpm dlx @nestjs/cli@latest new apps/api --package-manager pnpm --skip-git --skip-install --strict` |
+| **NestJS (Enterprise Node/TS)** | `pnpm dlx @nestjs/cli@latest new apps/api --package-manager pnpm --skip-git --skip-install --strict` *(Delete `apps/api/.eslintrc.js` and `apps/api/.prettierrc` if root uses Biome)* |
 | **Fastify / Hono (Lightweight Node/TS)** | Initialize `apps/api/package.json` (`pnpm --filter api init`) and add `fastify` / `hono`, `tsx`, `typescript`, `@types/node` via `pnpm --filter api add ...` |
 | **Nx Monorepo Workspace** | `pnpm dlx create-nx-workspace@latest . --preset=ts --nxCloud=skip --interactive=false --skipGit=true` |
-| **Python (FastAPI / Django via `uv`)** | `uv init apps/api --no-readme --no-pin-python && uv --directory apps/api add fastapi uvicorn pydantic sqlalchemy alembic` |
-| **Go (Fiber / Chi + `sqlc`)** | `mkdir -p apps/api && cd apps/api && go mod init <module-name>/api` |
-| **Java (Spring Boot via Initializr API)** | `curl -sSL https://start.spring.io/starter.tgz -d type=maven-project -d language=java -d bootVersion=3.4.0 -d baseDir=apps/api -d groupId=com.app -d artifactId=api -d dependencies=web,data-jpa,postgresql,validation | tar -xzf -` |
+| **Python (FastAPI / Django via `uv`)** | `uv init apps/api --no-readme --no-pin-python` followed by `uv --directory apps/api add fastapi uvicorn pydantic sqlalchemy alembic` |
+| **Go (Fiber / Chi + `sqlc`)** | Create `apps/api` directory, then run `go mod init <module-name>/api` inside `apps/api` |
+| **Java (Spring Boot via Initializr API)** | Use `curl.exe -sSL "https://start.spring.io/starter.tgz?type=maven-project&language=java&bootVersion=3.4.0&baseDir=apps/api&groupId=com.app&artifactId=api&dependencies=web,data-jpa,postgresql,validation" \| tar -xzf -` *(Always use `curl.exe` on Windows PowerShell so `Invoke-WebRequest` alias does not intercept flags)* |
 
 ---
 
-## 2. Commitlint Configuration (`commitlint.config.mjs`)
+## 2. Modular Configuration Templates (`../templates/`)
 
-Ensure Commitlint accepts the `<type>(<scope>): [TASK-XX] <subject>` format required by the `implement` skill (do not enforce `subject-case` rules that reject a leading `[TASK-XX]` tag):
+Do **not** invent linter, formatter, or git hook configs from scratch. Copy them directly from [`../templates/`](../templates/):
 
-```javascript
-export default {
-  extends: ['@commitlint/config-conventional'],
-  rules: {
-    'type-enum': [
-      2,
-      'always',
-      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert'],
-    ],
-    'subject-case': [0], // Allow [TASK-XX] prefix followed by lowercase prose or camelCase identifiers
-    'header-max-length': [2, 'always', 100],
-  },
-};
-```
+| Category | Template Path | Target Path in Workspace | Required DevDependencies / Setup |
+|---|---|---|---|
+| **Biome Linter/Formatter** | `templates/linters/biome.json` | `./biome.json` | `@biomejs/biome` |
+| **ESLint v9 Flat Config** | `templates/linters/eslint.config.mjs` | `./eslint.config.mjs` | `eslint`, `typescript-eslint`, `@eslint/js` |
+| **Prettier Config** | `templates/linters/.prettierrc` | `./.prettierrc` | `prettier` |
+| **EditorConfig** | `templates/editor/.editorconfig` | `./.editorconfig` | *(None)* |
+| **Commitlint (`[TASK-XX]` ready)** | `templates/git/commitlint.config.mjs` | `./commitlint.config.mjs` | `@commitlint/cli`, `@commitlint/config-conventional` |
+| **Husky v9 Hooks** | `templates/git/husky/commit-msg` & `pre-commit` | `./.husky/commit-msg` & `./.husky/pre-commit` | `husky`, `lint-staged`, plus `"prepare": "husky"` in root `package.json` and `git config core.hooksPath .husky` |
+| **Lint-Staged (Biome)** | `templates/git/.lintstagedrc.biome.json` | `./.lintstagedrc.json` | `lint-staged` |
+| **Lint-Staged (ESLint)** | `templates/git/.lintstagedrc.eslint.json` | `./.lintstagedrc.json` | `lint-staged` |
+| **GitHub Actions CI (JS/TS)** | `templates/ci/github-ci.yml` | `./.github/workflows/ci.yml` | *(Adapt steps for `uv` / `go` / `mvn` if non-JS backend)* |
+| **Base TypeScript Config** | `templates/typescript/tsconfig.base.json` | `./packages/tsconfig/base.json` (or `./tsconfig.base.json`) | `typescript` |
 
 ---
 
@@ -125,14 +127,14 @@ When `scaffold` finishes Phase 3 verification, **halt** and render this card bef
 #### 📦 Scaffolded Applications & Packages
 1. `apps/web` — Next.js App Router (generated via `create-next-app` non-interactive CLI)
 2. `apps/api` — NestJS strict API shell (generated via `@nestjs/cli` non-interactive CLI)
-3. `packages/database` — Drizzle ORM + PostgreSQL connection client skeleton
-4. `packages/contracts` — Shared Zod validation & `ApiResponse<T>` envelope
-5. `packages/tsconfig` — Shared strict TypeScript base configs
+3. `packages/database` (`@repo/database`) — Drizzle ORM + PostgreSQL connection client skeleton
+4. `packages/contracts` (`@repo/contracts`) — Shared Zod validation & `ApiResponse<T>` envelope
+5. `packages/tsconfig` (`@repo/tsconfig`) — Shared strict TypeScript base configs
 
 #### 🛡️ Tooling, Guardrails & Agent Rules Wired
 - **Workspace & Tasks:** `package.json`, `pnpm-workspace.yaml`, `turbo.json`
-- **Quality & Git Hooks:** `biome.json`, `commitlint.config.mjs`, `.husky/commit-msg`
-- **Local Backing Services:** `docker-compose.yml` (PostgreSQL 16 + Redis 7), `.env.example`
+- **Quality & Git Hooks:** `biome.json` (or ESLint+Prettier), `.editorconfig`, `commitlint.config.mjs`, `.lintstagedrc.json`, `.husky/commit-msg`, `.husky/pre-commit`
+- **CI & Local Backing Services:** `.github/workflows/ci.yml`, `docker-compose.yml` (PostgreSQL 16 + Redis 7), `.env.example`
 - **Agent Rules:** [`AGENTS.md`](./AGENTS.md), [`docs/rules/code-standards.md`](./docs/rules/code-standards.md), [`docs/rules/testing-integrity.md`](./docs/rules/testing-integrity.md)
 
 #### 🧪 Verification Commands Executed
