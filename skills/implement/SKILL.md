@@ -28,7 +28,7 @@ Rules for Bookkeeping Files:
 1. You **may** update them without asking, but **only** for the status transitions defined in this skill: microtask status (`TO_DO` ➔ `IN_PROGRESS` ➔ `COMPLETED`) in both the Progress Overview table and the `TASK-XX` block, slice `Status` (`Planned` ➔ `In Progress` ➔ `Completed`) with `Started` / `Completed` dates, Section 6 continuity notes, and the matching README slice row. These values are defined by the `slice` skill's **Status Vocabulary**.
 2. They do **not** count toward the 1–3 target file limit and do **not** trigger the 4th-File Deviation Protocol.
 3. You must **never** use them to change specifications (task descriptions, target files, verification commands, data models, or API contracts). Spec changes require the developer.
-4. Every other file under `docs/` remains off-limits unless it is a declared target file.
+4. Every other file under `docs/` (including `docs/ARCHITECTURE.md`, `docs/PRD.md`, `docs/BRAND_DESIGN.md`, and `docs/UI_SPEC/*`) is **strictly read-only** during implementation unless explicitly listed as a declared target file in `TASK-XX`.
 
 ---
 
@@ -100,9 +100,10 @@ To prevent context window saturation and hallucinations, do **NOT** read the ent
    - Technology Stack Matrix (frameworks, database, ORM, validation library).
    - Repository Structure & layer conventions (Solo vs. Monorepo paths).
    - Coding standards (naming conventions, typing standards, error handling patterns).
-3. **Task Specification:** Extract from `docs/tasks/00X-<slug>.md`:
+3. **Task Specification & UI Design Blueprint:** Extract from `docs/tasks/00X-<slug>.md`:
    - Active `TASK-XX` block: Target Files (1–3), Description, and Verification Command.
-   - Relevant Data Model rows (Section 2) or API Contracts (Section 3) pertaining to this microtask.
+   - Relevant Data Model rows (Section 2), API Contracts (Section 3), or UI Surfaces (Section 4) pertaining to this microtask.
+   - **Frontend / Theme Tasks:** If `TASK-XX` targets UI components or theme files (`globals.css`, `tailwind.config.*`), also read `docs/BRAND_DESIGN.md` and the specific `docs/UI_SPEC/00X-<slug>.md` linked in the slice/task (read-only) to follow the exact Stitch-approved component hierarchy, semantic tokens, and edge states.
 4. **Target Files First, Direct Dependencies Read-Only:**
    - Read the existing contents of the 1–3 target files listed in `TASK-XX`.
    - If target files do not exist yet, inspect their parent directory structure to maintain consistency with existing code.

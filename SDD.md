@@ -16,11 +16,14 @@ flowchart LR
       REQ["requirements\n(PM Persona)"] -->|"docs/PRD.md"| ARC["architect\n(System Architect)"]
     end
 
-    subgraph Setup ["2. Workspace Foundation"]
+    subgraph Setup ["2. Workspace Foundation & Design"]
       ARC -->|"docs/ARCHITECTURE.md"| DEC{"Repo\nInitialized?"}
       DEC -->|"No (Greenfield)"| SCA["scaffold (Optional)\n(Platform/DX Lead)"]
-      DEC -->|"Yes (Existing)"| SLI
-      SCA -->|"docs/INITIALIZATION.md\n(Verified Base Shell)"| SLI["slice\n(Vertical Slice Lead)"]
+      DEC -->|"Yes (Existing)"| DES
+      SCA -->|"docs/INITIALIZATION.md\n(Verified Base Shell)"| DES{"Frontend\nScreen?"}
+      DES -->|"Yes"| DSN["designer (Optional)\n(Google Stitch MCP)"]
+      DES -->|"No (API/Backend)"| SLI
+      DSN -->|"docs/BRAND_DESIGN.md &\ndocs/UI_SPEC/00X-<slug>.md"| SLI["slice\n(Vertical Slice Lead)"]
     end
 
     subgraph Execution ["3. Monitored Implementation"]
@@ -34,15 +37,16 @@ flowchart LR
 
 ---
 
-## 2. The 5 Core Skills Breakdown
+## 2. The Core Skills Breakdown
 
 | Skill | Role | Primary Artifact | Input Dependency | Output Scope & Boundaries |
 |---|---|---|---|---|
 | **`requirements`** | Principal Product Manager | `docs/PRD.md` (150–250 lines) | User idea or prompt | Actor $\times$ Surface matrix, scale tier, hard cap of 3–5 `P0 (MVP)` features with Gherkin acceptance criteria. **Zero tech stack or code decisions.** |
 | **`architect`** | Principal Systems Architect | `docs/ARCHITECTURE.md` (250–380 lines) | `docs/PRD.md` | 7-layer stack taxonomy, Mermaid system & ER diagrams, database schemas, API summary endpoints, repo topology, operational scale strategy. **Zero feature writing or task planning.** |
 | **`scaffold`** *(Optional)* | Principal Platform & DX Engineer | `docs/INITIALIZATION.md`, base workspace, `AGENTS.md`, `docs/rules/` | `docs/ARCHITECTURE.md` | Interrogates developer for surface parameters, writes `docs/INITIALIZATION.md` foundation board, executes non-interactive CLIs, pre-links `@repo/*` packages, applies modular `templates/`, verifies clean build, and halts for foundation commit. **Zero feature code.** |
-| **`slice`** | Vertical Slice Architect | `docs/tasks/README.md` & `docs/tasks/00X-<slug>.md` | `docs/PRD.md` & `docs/ARCHITECTURE.md` | Decomposes a single feature into sequential, atomic microtasks strictly capped at **1–3 target files** with deterministic CLI verification commands and `TO_DO` status. **Zero application code.** |
-| **`implement`** | Principal Implementation Specialist | Application code files + atomic commits | `docs/tasks/00X-<slug>.md` & `docs/rules/` | Executes strictly **ONE** microtask at a time, modifies only the 1–3 target files, runs the verification command (max 3 auto-fix attempts), renders the **Surveillance Review Card**, updates status to `COMPLETED`, and commits only after developer approval. |
+| **`designer`** *(Optional)* | Principal Brand & UI/UX Design Lead | `docs/BRAND_DESIGN.md` & `docs/UI_SPEC/00X-<slug>.md` | `docs/PRD.md`, `docs/ARCHITECTURE.md` & brand preferences | Dynamically fills missing brand roots, forbids generative Stitch prompts until `docs/BRAND_DESIGN.md` is approved, checks existing Stitch screens for cross-page consistency, enforces visual approval, and writes per-screen component/token specs in `docs/UI_SPEC/00X-<slug>.md`. **Zero application code edits.** |
+| **`slice`** | Vertical Slice Architect | `docs/tasks/README.md` & `docs/tasks/00X-<slug>.md` | `docs/PRD.md`, `docs/ARCHITECTURE.md`, `docs/UI_SPEC/*` | Decomposes a single feature into sequential, atomic microtasks strictly capped at **1–3 target files** with deterministic CLI verification commands and `TO_DO` status. **Zero application code.** |
+| **`implement`** | Principal Implementation Specialist | Application code files + atomic commits | `docs/tasks/00X-<slug>.md`, `docs/UI_SPEC/*` & `docs/rules/` | Executes strictly **ONE** microtask at a time, modifies only the 1–3 target files, runs the verification command (max 3 auto-fix attempts), renders the **Surveillance Review Card**, updates status to `COMPLETED`, and commits only after developer approval. |
 
 ---
 
@@ -128,6 +132,32 @@ Present docs/INITIALIZATION.md for my review before executing any terminal comma
 
 * **📌 What to Include:** Styling/component combo (`Tailwind + shadcn/ui`), package manager, port assignments, linter preset preference, and an explicit instruction to present `docs/INITIALIZATION.md` before execution.
 * **⚠️ What to Avoid:** Letting the agent execute commands without an approved `docs/INITIALIZATION.md`; writing business feature code.
+
+---
+
+### Phase 3.5: Visual & Brand Design (`designer`)
+*(Optional: Run whenever establishing brand roots or designing a new user-facing screen).*
+
+#### ❌ The Bad Prompt (Anti-Pattern)
+```text
+Make me a cool dashboard in Stitch and copy the code into apps/web.
+```
+> **Why it fails:** Bypasses brand discovery, hallucinates theme colors, prompts Stitch without context, and directly pastes raw un-typed, non-accessible preview HTML into production code—creating instant frontend AI slop.
+
+#### ✅ The High-Impact Prompt
+```text
+Activate the designer skill. Review docs/PRD.md and docs/ARCHITECTURE.md for FEAT-02 (Dashboard Overview).
+
+Brand & Visual Requirements:
+- Do NOT prompt Stitch until docs/BRAND_DESIGN.md is reviewed and approved.
+- Palette Strategy: Bi-Color (Neutral slate canvas 60%, dark zinc containers 30%, electric blue #2563EB accent 10%).
+- Typography: Inter for UI body, JetBrains Mono for monetary values.
+- Theme: Dark-first modern minimal.
+- Output: Check existing screens in docs/BRAND_DESIGN.md for layout consistency, present the Stitch canvas URL for my visual approval, and write the component & token blueprint to docs/UI_SPEC/002-dashboard-overview.md. Do not edit code files directly.
+```
+
+* **📌 What to Include:** Feature reference, strict requirement to lock `docs/BRAND_DESIGN.md` first, brand palette strategy (mono/bi/tri-color), typography preferences, theme mode, visual review gate, and target spec path in `docs/UI_SPEC/`.
+* **⚠️ What to Avoid:** Letting the agent prompt Stitch without approved brand roots; letting `designer` edit application code files (`globals.css`, `tailwind.config.ts`, or `.tsx`) directly.
 
 ---
 

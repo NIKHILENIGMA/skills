@@ -83,6 +83,7 @@ Once both `docs/PRD.md` and `docs/ARCHITECTURE.md` are loaded:
 1. **Parse Specifications:**
    - From `docs/PRD.md`: Extract the **Master Feature Registry** (`P0 MVP`, `P1 Fast-Follow`), target actors, and acceptance criteria.
    - From `docs/ARCHITECTURE.md`: Extract the **Data Model Schemas**, **API Boundaries**, **Stack Matrix**, and **Repository Topology**.
+   - From `docs/BRAND_DESIGN.md` & `docs/UI_SPEC/` *(if present)*: Extract the **Brand Token Blueprint** (Section 5 of `docs/BRAND_DESIGN.md`) and any approved screen specification (`docs/UI_SPEC/00X-<slug>.md`) mapped to the target `FEAT-ID` so UI microtasks reflect the exact Stitch-approved component hierarchy, tokens, and edge states.
 2. **Inspect Existing Task Directory:**
    - Check if `docs/tasks/README.md` exists.
    - If it exists: Read the index to see each feature's status (`Not Sliced`, `Planned`, `In Progress`, `Completed`), and identify the next highest slice number (e.g., `001`, `002`, `003`).
@@ -139,7 +140,8 @@ Generate the dedicated vertical slice file named **`docs/tasks/00X-<slug>.md`** 
    - **`TASK-0N` to `TASK-0N` (Domain Service Logic — 1–2 files):** Business logic, transactions, exceptions, and unit tests.
    - **`TASK-0N` to `TASK-0N` (API Handler / Controller — 1–2 files):** Route wiring, guards/middleware, and module registration.
    - **`TASK-0N` to `TASK-0N` (Client State / Hook — 1–2 files):** Typed fetchers and React Query / SWR / Zustand store hooks.
-   - **`TASK-0N` to `TASK-0N` (UI Presentation Components — 1–3 files):** Component views, forms, loading skeletons, and empty/error states.
+   - **`TASK-0N` (UI Theme Sync — 1–2 files, if `docs/BRAND_DESIGN.md` tokens are not yet applied):** Sync CSS variables / Tailwind tokens from `docs/BRAND_DESIGN.md` into `globals.css` / `tailwind.config.ts`.
+   - **`TASK-0N` to `TASK-0N` (UI Presentation Components — 1–3 files):** Component views, forms, loading skeletons, and empty/error states. *(If a matching `docs/UI_SPEC/00X-<slug>.md` exists, explicitly link it in the task description so `implement` builds the exact Stitch-approved component hierarchy and token classes.)*
    - **`TASK-NN` (Route Mounting & Smoke Test — 1–2 files):** Mount into page route, wire navigation, and execute end-to-end smoke verification.
    *(Omit backend tasks for Frontend-Only slices; omit UI tasks for Backend-Only slices.)*
 4. **Mandatory Deterministic Verification Command:**

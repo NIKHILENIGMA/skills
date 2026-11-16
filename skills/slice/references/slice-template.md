@@ -35,7 +35,7 @@ Use these templates when creating or updating the master barrel index (`docs/tas
 - **Feature ID:** `<FEAT-ID>`
 - **Phase / Priority:** `<Phase 2: MVP Core / P0>`
 - **Status:** `Planned` *(`implement` sets `In Progress` when TASK-01 starts and `Completed` when all microtasks are `COMPLETED`)*
-- **Derived From:** [`docs/PRD.md`](../PRD.md) & [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md)
+- **Derived From:** [`docs/PRD.md`](../PRD.md), [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md) *(+ [`docs/BRAND_DESIGN.md`](../BRAND_DESIGN.md) & [`docs/UI_SPEC/00X-<slug>.md`](../UI_SPEC/00X-<slug>.md) if UI surface)*
 - **Started:** `—`
 - **Completed:** `—`
 
